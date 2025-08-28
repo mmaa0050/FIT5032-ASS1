@@ -30,14 +30,14 @@
           />
         </div>
 
-        <!-- Button -->
+        <!-- Login Button -->
         <button type="submit" class="btn btn-login w-100 mt-3">Login</button>
       </form>
 
-      <!-- Link to Register (future use) -->
+      <!-- Link to Register -->
       <p class="text-center mt-3">
         Don’t have an account?
-        <a href="#" class="register-link">Sign Up</a>
+        <a href="#" class="register-link" @click.prevent="$emit('go-register')">Sign Up</a>
       </p>
     </div>
   </div>
