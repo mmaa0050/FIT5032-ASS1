@@ -1,16 +1,9 @@
 <template>
-  <div
-    class="d-flex justify-content-center align-items-center vh-100"
-    style="background-color: #fff"
-  >
-    <div
-      class="card shadow-lg p-4 text-dark"
-      style="width: 380px; border-radius: 10px; background-color: #f8f8f8"
-    >
-      <h2 class="text-center mb-4" style="color: #333">Register</h2>
-      <p class="text-center text-muted mb-4">Create your account</p>
+  <div class="d-flex justify-content-center align-items-center vh-100 login-bg">
+    <div class="card shadow-lg p-4 text-dark login-card">
+      <h2 class="text-center mb-4 text-gradient">Women's Health</h2>
 
-      <form @submit.prevent="registerUser">
+      <form @submit.prevent="register">
         <!-- Username -->
         <div class="mb-3">
           <label class="form-label fw-bold">Username</label>
@@ -49,44 +42,92 @@
         </div>
 
         <!-- Register Button -->
-        <button
-          type="submit"
-          class="btn w-100 mt-3"
-          style="background-color: #333; color: white; border-radius: 5px; padding: 10px"
-        >
-          Register
-        </button>
+        <button type="submit" class="btn btn-login w-100 mt-3">Register</button>
       </form>
 
       <!-- Link to Login -->
-      <p class="text-center mt-3" style="font-size: 14px">
+      <p class="text-center mt-3">
         Already have an account?
-        <a href="#" style="color: #333; text-decoration: none" @click.prevent="$emit('go-login')"
-          >Login</a
-        >
+        <a href="#" class="register-link" @click.prevent="$emit('go-login')">Login</a>
       </p>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script>
+export default {
+  data() {
+    return {
+      username: '',
+      email: '',
+      password: '',
+    }
+  },
+  methods: {
+    register() {
+      if (!this.username || !this.email || !this.password) {
+        alert('Please fill in all fields.')
+        return
+      }
 
-const username = ref('')
-const email = ref('')
-const password = ref('')
+      const users = JSON.parse(localStorage.getItem('users') || '[]')
 
-function registerUser() {
-  if (!username.value || !email.value || !password.value) {
-    alert('Please fill all fields')
-    return
-  }
-  console.log('Registered:', username.value, email.value, password.value)
-  alert(`User ${username.value} registered successfully!`)
-  username.value = ''
-  email.value = ''
-  password.value = ''
+      if (users.find((u) => u.email === this.email)) {
+        alert('This email is already registered.')
+        return
+      }
+
+      users.push({ username: this.username, email: this.email, password: this.password })
+      localStorage.setItem('users', JSON.stringify(users))
+
+      alert(`User ${this.username} registered successfully!`)
+      this.username = ''
+      this.email = ''
+      this.password = ''
+    },
+  },
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.login-bg {
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb);
+}
+
+.login-card {
+  width: 90%;
+  max-width: 380px;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.text-gradient {
+  background: linear-gradient(45deg, #ff6f91, #ff9671, #ffc75f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+
+.btn-login {
+  background: linear-gradient(45deg, #ff6f91, #ff9671, #ffc75f);
+  border: none;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 12px;
+  border-radius: 30px;
+  transition: 0.3s;
+}
+.btn-login:hover {
+  opacity: 0.85;
+}
+
+.register-link {
+  color: #ff6f91;
+  font-weight: 600;
+  text-decoration: none;
+}
+.register-link:hover {
+  text-decoration: underline;
+}
+</style>

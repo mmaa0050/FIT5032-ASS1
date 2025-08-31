@@ -2,7 +2,6 @@
   <div class="d-flex justify-content-center align-items-center vh-100 login-bg">
     <div class="card shadow-lg p-4 text-dark login-card">
       <h2 class="text-center mb-4 text-gradient">Women’s Health</h2>
-      <p class="text-center text-muted mb-4">Login to access your personal health space</p>
 
       <form @submit.prevent="login">
         <!-- Email -->
@@ -53,13 +52,21 @@ export default {
   },
   methods: {
     login() {
-      if (this.email === '' || this.password === '') {
+      if (!this.email || !this.password) {
         alert('Please fill in all fields.')
         return
       }
-      alert(`Welcome back, ${this.email}!`)
-      this.email = ''
-      this.password = ''
+
+      const users = JSON.parse(localStorage.getItem('users') || '[]')
+      const user = users.find((u) => u.email === this.email && u.password === this.password)
+
+      if (user) {
+        alert(`Welcome back, ${user.username}!`)
+        this.email = ''
+        this.password = ''
+      } else {
+        alert('Invalid email or password.')
+      }
     },
   },
 }
@@ -71,7 +78,8 @@ export default {
 }
 
 .login-card {
-  width: 380px;
+  width: 90%;
+  max-width: 380px;
   border-radius: 20px;
   background: #fff;
 }
