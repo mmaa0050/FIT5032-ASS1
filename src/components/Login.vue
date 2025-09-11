@@ -61,7 +61,16 @@ export default {
       const user = users.find((u) => u.email === this.email && u.password === this.password)
 
       if (user) {
-        alert(`Welcome back, ${user.username}!`)
+        localStorage.setItem('loggedInUser', JSON.stringify(user))
+
+        if (user.role === 'Admin') {
+          alert(`Welcome Admin, ${user.username}!`)
+          this.$emit('go-admin')
+        } else {
+          alert(`Welcome back, ${user.username}!`)
+          this.$emit('go-rating')
+        }
+
         this.email = ''
         this.password = ''
       } else {
