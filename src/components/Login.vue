@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex justify-content-center align-items-center vh-100 login-bg">
     <div class="card shadow-lg p-4 text-dark login-card">
-      <h2 class="text-center mb-4 text-gradient">Women’s Health</h2>
+      <h2 class="text-center mb-4 text-gradient">Women's Health</h2>
 
       <form @submit.prevent="login">
         <!-- Email -->
@@ -29,6 +29,16 @@
           />
         </div>
 
+        <!-- Role -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Role</label>
+          <select v-model="role" class="form-control form-control-lg" required>
+            <option disabled value="">Select role</option>
+            <option>User</option>
+            <option>Admin</option>
+          </select>
+        </div>
+
         <!-- Login Button -->
         <button type="submit" class="btn btn-login w-100 mt-3">Login</button>
       </form>
@@ -48,33 +58,35 @@ export default {
     return {
       email: '',
       password: '',
+      role: '',
     }
   },
   methods: {
     login() {
-      if (!this.email || !this.password) {
+      if (!this.email || !this.password || !this.role) {
         alert('Please fill in all fields.')
         return
       }
 
+      const emailLower = this.email.trim().toLowerCase()
       const users = JSON.parse(localStorage.getItem('users') || '[]')
-      const user = users.find((u) => u.email === this.email && u.password === this.password)
+      const user = users.find(
+        (u) => u.email === emailLower && u.password === this.password && u.role === this.role,
+      )
 
       if (user) {
-        localStorage.setItem('loggedInUser', JSON.stringify(user))
-
-        if (user.role === 'Admin') {
-          alert(`Welcome Admin, ${user.username}!`)
-          this.$emit('go-admin')
-        } else {
-          alert(`Welcome back, ${user.username}!`)
-          this.$emit('go-rating')
-        }
-
+        alert(`Welcome back, ${user.username}! You are logged in as ${user.role}.`)
         this.email = ''
         this.password = ''
+        this.role = ''
+
+        if (user.role === 'Admin') {
+          this.$emit('go-admin')
+        } else {
+          this.$emit('go-user')
+        }
       } else {
-        alert('Invalid email or password.')
+        alert('Invalid email, password, or role.')
       }
     },
   },

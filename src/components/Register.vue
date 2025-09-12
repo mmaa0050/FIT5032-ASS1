@@ -41,6 +41,16 @@
           />
         </div>
 
+        <!-- Role -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Role</label>
+          <select v-model="role" class="form-control form-control-lg" required>
+            <option disabled value="">Select role</option>
+            <option value="User">User</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+
         <!-- Register Button -->
         <button type="submit" class="btn btn-login w-100 mt-3">Register</button>
       </form>
@@ -61,29 +71,39 @@ export default {
       username: '',
       email: '',
       password: '',
+      role: '',
     }
   },
   methods: {
     register() {
-      if (!this.username || !this.email || !this.password) {
+      if (!this.username || !this.email || !this.password || !this.role) {
         alert('Please fill in all fields.')
         return
       }
 
+      const emailLower = this.email.trim().toLowerCase()
       const users = JSON.parse(localStorage.getItem('users') || '[]')
 
-      if (users.find((u) => u.email === this.email)) {
+      if (users.find((u) => u.email === emailLower)) {
         alert('This email is already registered.')
         return
       }
 
-      users.push({ username: this.username, email: this.email, password: this.password })
+      users.push({
+        username: this.username,
+        email: emailLower,
+        password: this.password,
+        role: this.role,
+      })
       localStorage.setItem('users', JSON.stringify(users))
 
-      alert(`User ${this.username} registered successfully!`)
+      alert(`User ${this.username} registered successfully as ${this.role}!`)
+
       this.username = ''
       this.email = ''
       this.password = ''
+      this.role = ''
+      this.$emit('go-login')
     },
   },
 }
