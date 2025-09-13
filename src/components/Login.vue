@@ -34,8 +34,8 @@
           <label class="form-label fw-bold">Role</label>
           <select v-model="role" class="form-control form-control-lg" required>
             <option disabled value="">Select role</option>
-            <option>User</option>
-            <option>Admin</option>
+            <option value="User">User</option>
+            <option value="Admin">Admin</option>
           </select>
         </div>
 
@@ -62,29 +62,44 @@ export default {
     }
   },
   methods: {
-    login() {
+    sanitizeInput(str) {
+      if (!str) return ''
+      return String(str).replace(/[<>]/g, '').trim()
+    },
+    async hashPassword(password) {
+      const enc = new TextEncoder()
+      const buff = enc.encode(password)
+      const hashBuffer = await crypto.subtle.digest('SHA-256', buff)
+      const hashArray = Array.from(new Uint8Array(hashBuffer))
+      const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+      return hashHex
+    },
+    async login() {
+      this.email = this.sanitizeInput(this.email).toLowerCase()
+      this.password = this.sanitizeInput(this.password)
       if (!this.email || !this.password || !this.role) {
         alert('Please fill in all fields.')
         return
       }
 
-      const emailLower = this.email.trim().toLowerCase()
       const users = JSON.parse(localStorage.getItem('users') || '[]')
+      const hashedInput = await this.hashPassword(this.password)
+
       const user = users.find(
-        (u) => u.email === emailLower && u.password === this.password && u.role === this.role,
+        (u) => u.email === this.email && u.passwordHash === hashedInput && u.role === this.role,
       )
 
       if (user) {
+        const userSafe = {
+          username: user.username,
+          email: user.email,
+          role: user.role,
+        }
         alert(`Welcome back, ${user.username}! You are logged in as ${user.role}.`)
         this.email = ''
         this.password = ''
         this.role = ''
-
-        if (user.role === 'Admin') {
-          this.$emit('go-admin')
-        } else {
-          this.$emit('go-user')
-        }
+        this.$emit('login-success', userSafe)
       } else {
         alert('Invalid email, password, or role.')
       }
