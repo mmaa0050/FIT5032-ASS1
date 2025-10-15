@@ -6,84 +6,27 @@
         Role: <strong>{{ currentUser.role }}</strong>
       </p>
 
-      <section class="mt-4">
-        <h4>Registered Users</h4>
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="u in users" :key="u.email">
-              <td>{{ u.username }}</td>
-              <td>{{ u.email }}</td>
-              <td>{{ u.role }}</td>
-              <td>
-                <button class="btn btn-sm btn-danger" @click="deleteUser(u.email)">Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
+      <button class="btn btn-primary mt-3 mb-3" @click="showTables = !showTables">
+        {{ showTables ? 'Hide' : 'Show' }} Interactive Tables
+      </button>
 
-      <section class="mt-4">
-        <h4>Ratings Summary</h4>
-        <p>
-          Average rating: <strong>{{ avgRatingDisplay }}</strong>
-        </p>
-        <p>Total votes: {{ ratings.length }}</p>
-      </section>
+      <InteractiveTables v-if="showTables" />
 
-      <button class="btn btn-logout mt-3" @click="$emit('logout')">Logout</button>
+      <button class="btn btn-logout mt-4" @click="$emit('logout')">Logout</button>
     </div>
   </div>
 </template>
 
 <script>
+import InteractiveTables from './InteractiveTables.vue'
+
 export default {
   props: { currentUser: { type: Object, required: true } },
+  components: { InteractiveTables },
   data() {
     return {
-      users: [],
-      ratings: [],
+      showTables: false,
     }
-  },
-  computed: {
-    avgRating() {
-      if (!this.ratings.length) return 0
-      const sum = this.ratings.reduce((s, r) => s + r.rating, 0)
-      return sum / this.ratings.length
-    },
-    avgRatingDisplay() {
-      return this.avgRating ? this.avgRating.toFixed(2) + ' / 5' : 'No ratings yet'
-    },
-  },
-  mounted() {
-    this.loadUsers()
-    this.loadRatings()
-  },
-  methods: {
-    loadUsers() {
-      this.users = JSON.parse(localStorage.getItem('users') || '[]')
-    },
-    loadRatings() {
-      this.ratings = JSON.parse(localStorage.getItem('ratings') || '[]')
-    },
-    deleteUser(email) {
-      if (!confirm(`Delete user ${email}? This cannot be undone.`)) return
-      // remove user
-      this.users = this.users.filter((u) => u.email !== email)
-      localStorage.setItem('users', JSON.stringify(this.users))
-      // also remove ratings by this email
-      this.ratings = this.ratings.filter((r) => r.email !== email)
-      localStorage.setItem('ratings', JSON.stringify(this.ratings))
-      this.loadUsers()
-      this.loadRatings()
-    },
   },
 }
 </script>
@@ -113,23 +56,15 @@ export default {
 .btn-logout:hover {
   background: #ff8a75;
 }
-.btn-danger {
-  background: #e25555;
-  border: none;
+.btn-primary {
+  background: #007bff;
   color: white;
-  padding: 6px 10px;
-  border-radius: 6px;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
 }
-.btn-danger:hover {
-  opacity: 0.9;
-}
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.table th,
-.table td {
-  padding: 8px 6px;
-  text-align: left;
+.btn-primary:hover {
+  background: #0056b3;
 }
 </style>

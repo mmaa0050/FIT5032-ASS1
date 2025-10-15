@@ -14,7 +14,16 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "axios": "^1.12.2",
     "bootstrap": "^5.3.8",
+    "cors": "^2.8.5",
+    "datatables.net": "^2.3.4",
+    "datatables.net-dt": "^2.3.4",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "firebase": "^12.4.0",
+    "jquery": "^3.7.1",
+    "node-fetch": "^3.3.2",
     "vue": "^3.5.18"
   },
   "devDependencies": {

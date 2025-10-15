@@ -2,7 +2,6 @@
   <div class="d-flex justify-content-center align-items-center vh-100 login-bg">
     <div class="card shadow-lg p-4 text-dark login-card">
       <h2 class="text-center mb-4 text-gradient">Women's Health</h2>
-
       <form @submit.prevent="login">
         <!-- Email -->
         <div class="mb-3">
@@ -53,6 +52,9 @@
 </template>
 
 <script>
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '@/firebaseConfig'
+
 export default {
   data() {
     return {
@@ -62,46 +64,34 @@ export default {
     }
   },
   methods: {
-    sanitizeInput(str) {
-      if (!str) return ''
-      return String(str).replace(/[<>]/g, '').trim()
-    },
-    async hashPassword(password) {
-      const enc = new TextEncoder()
-      const buff = enc.encode(password)
-      const hashBuffer = await crypto.subtle.digest('SHA-256', buff)
-      const hashArray = Array.from(new Uint8Array(hashBuffer))
-      const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-      return hashHex
-    },
     async login() {
-      this.email = this.sanitizeInput(this.email).toLowerCase()
-      this.password = this.sanitizeInput(this.password)
       if (!this.email || !this.password || !this.role) {
         alert('Please fill in all fields.')
         return
       }
 
-      const users = JSON.parse(localStorage.getItem('users') || '[]')
-      const hashedInput = await this.hashPassword(this.password)
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password)
+        const user = userCredential.user
 
-      const user = users.find(
-        (u) => u.email === this.email && u.passwordHash === hashedInput && u.role === this.role,
-      )
-
-      if (user) {
-        const userSafe = {
-          username: user.username,
-          email: user.email,
-          role: user.role,
+        // Check stored role
+        const savedRole = localStorage.getItem('userRole')
+        if (savedRole !== this.role) {
+          alert('Incorrect role selection. Please select the correct role.')
+          return
         }
-        alert(`Welcome back, ${user.username}! You are logged in as ${user.role}.`)
+
+        // Correct template string
+        alert(`Welcome back, ${user.displayName || 'User'}! You are logged in as ${this.role}.`)
+
+        // Reset form
         this.email = ''
         this.password = ''
         this.role = ''
-        this.$emit('login-success', userSafe)
-      } else {
-        alert('Invalid email, password, or role.')
+
+        this.$emit('login-success', { email: user.email, role: this.role })
+      } catch (error) {
+        alert('Invalid email or password: ' + error.message)
       }
     },
   },
@@ -112,21 +102,18 @@ export default {
 .login-bg {
   background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb);
 }
-
 .login-card {
   width: 90%;
   max-width: 380px;
   border-radius: 20px;
   background: #fff;
 }
-
 .text-gradient {
   background: linear-gradient(45deg, #ff6f91, #ff9671, #ffc75f);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 700;
 }
-
 .btn-login {
   background: linear-gradient(45deg, #ff6f91, #ff9671, #ffc75f);
   border: none;
@@ -140,7 +127,6 @@ export default {
 .btn-login:hover {
   opacity: 0.85;
 }
-
 .register-link {
   color: #ff6f91;
   font-weight: 600;

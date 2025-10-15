@@ -2,7 +2,6 @@
   <div class="d-flex justify-content-center align-items-center vh-100 login-bg">
     <div class="card shadow-lg p-4 text-dark login-card">
       <h2 class="text-center mb-4 text-gradient">Women's Health</h2>
-
       <form @submit.prevent="register">
         <!-- Username -->
         <div class="mb-3">
@@ -39,10 +38,10 @@
             required
             minlength="6"
           />
-          <small class="form-text text-muted"
-            >It is recommended to include uppercase letters, numbers, or special characters to
-            enhance password strength.</small
-          >
+          <small class="form-text text-muted">
+            It is recommended to include uppercase letters, numbers, or special characters to
+            enhance password strength.
+          </small>
         </div>
 
         <!-- Role -->
@@ -69,6 +68,9 @@
 </template>
 
 <script>
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { auth } from '@/firebaseConfig'
+
 export default {
   data() {
     return {
@@ -79,67 +81,36 @@ export default {
     }
   },
   methods: {
-    sanitizeInput(str) {
-      if (!str) return ''
-      return String(str).replace(/[<>]/g, '').trim()
-    },
-    validateEmail(email) {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      return re.test(email)
-    },
-    async hashPassword(password) {
-      const enc = new TextEncoder()
-      const buff = enc.encode(password)
-      const hashBuffer = await crypto.subtle.digest('SHA-256', buff)
-      const hashArray = Array.from(new Uint8Array(hashBuffer))
-      const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-      return hashHex
-    },
     async register() {
-      this.username = this.sanitizeInput(this.username)
-      this.email = this.sanitizeInput(this.email).toLowerCase()
-      this.password = this.sanitizeInput(this.password)
-
       if (!this.username || !this.email || !this.password || !this.role) {
         alert('Please fill in all fields.')
         return
       }
 
-      if (!this.validateEmail(this.email)) {
-        alert('Please enter a valid email address.')
-        return
+      try {
+        // Create user with Firebase
+        const userCredential = await createUserWithEmailAndPassword(auth, this.email, this.password)
+        const user = userCredential.user
+
+        // Update display name
+        await updateProfile(user, { displayName: this.username })
+
+        // Store user role locally (Firebase doesn't store role by default)
+        localStorage.setItem('userRole', this.role)
+
+        // Alert with correct template string
+        alert(`User ${this.username} registered successfully as ${this.role}!`)
+
+        // Reset form
+        this.username = ''
+        this.email = ''
+        this.password = ''
+        this.role = ''
+
+        this.$emit('go-login')
+      } catch (error) {
+        alert(error.message)
       }
-
-      if (this.password.length < 6) {
-        alert('Password must be at least 6 characters.')
-        return
-      }
-
-      const users = JSON.parse(localStorage.getItem('users') || '[]')
-
-      if (users.find((u) => u.email === this.email)) {
-        alert('This email is already registered.')
-        return
-      }
-
-      // hash password
-      const passwordHash = await this.hashPassword(this.password)
-
-      users.push({
-        username: this.username,
-        email: this.email,
-        passwordHash: passwordHash,
-        role: this.role,
-      })
-      localStorage.setItem('users', JSON.stringify(users))
-
-      alert(`User ${this.username} registered successfully as ${this.role}!`)
-
-      this.username = ''
-      this.email = ''
-      this.password = ''
-      this.role = ''
-      this.$emit('go-login')
     },
   },
 }
@@ -149,21 +120,18 @@ export default {
 .login-bg {
   background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb);
 }
-
 .login-card {
   width: 90%;
   max-width: 380px;
   border-radius: 20px;
   background: #fff;
 }
-
 .text-gradient {
   background: linear-gradient(45deg, #ff6f91, #ff9671, #ffc75f);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 700;
 }
-
 .btn-login {
   background: linear-gradient(45deg, #ff6f91, #ff9671, #ffc75f);
   border: none;
@@ -177,7 +145,6 @@ export default {
 .btn-login:hover {
   opacity: 0.85;
 }
-
 .register-link {
   color: #ff6f91;
   font-weight: 600;

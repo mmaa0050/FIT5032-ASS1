@@ -6,18 +6,28 @@
         Your role is: <strong>{{ currentUser.role }}</strong>
       </p>
 
-      <Rating :current-user="currentUser" />
+      <button class="btn btn-primary mt-3 mb-3" @click="showTables = !showTables">
+        {{ showTables ? 'Hide' : 'Show' }} Interactive Tables
+      </button>
 
-      <button class="btn btn-logout mt-3" @click="$emit('logout')">Logout</button>
+      <InteractiveTables v-if="showTables" />
+
+      <button class="btn btn-logout mt-4" @click="$emit('logout')">Logout</button>
     </div>
   </div>
 </template>
 
 <script>
-import Rating from './Rating.vue'
+import InteractiveTables from './InteractiveTables.vue'
+
 export default {
   props: { currentUser: { type: Object, required: true } },
-  components: { Rating },
+  components: { InteractiveTables },
+  data() {
+    return {
+      showTables: false,
+    }
+  },
 }
 </script>
 
@@ -45,5 +55,16 @@ export default {
 }
 .btn-logout:hover {
   background: #ff8a75;
+}
+.btn-primary {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  background: #0056b3;
 }
 </style>
