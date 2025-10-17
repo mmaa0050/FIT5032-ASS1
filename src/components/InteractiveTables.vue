@@ -144,16 +144,13 @@ export default {
     const users = ref([])
     const emails = ref([])
 
-    // 分页控制
     const userPage = ref(1)
     const emailPage = ref(1)
     const pageSize = 10
 
-    // 搜索过滤
     const userFilters = ref({ id: '', username: '', email: '', role: '' })
     const emailFilters = ref({ id: '', to: '', subject: '', date: '' })
 
-    // Mock 数据生成
     const generateMockData = () => {
       users.value = Array.from({ length: 30 }, (_, i) => ({
         id: i + 1,

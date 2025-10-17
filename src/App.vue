@@ -11,12 +11,16 @@
     <AdminDashboard
       v-else-if="currentPage === 'admin'"
       :current-user="currentUser"
+      :show-map="showMap"
+      @toggle-map="toggleMap"
       @logout="logout"
     />
 
     <UserDashboard
       v-else-if="currentPage === 'user'"
       :current-user="currentUser"
+      :show-map="showMap"
+      @toggle-map="toggleMap"
       @logout="logout"
     />
   </div>
@@ -34,6 +38,7 @@ export default {
   setup() {
     const currentPage = ref('login') // 'login' | 'register' | 'admin' | 'user'
     const currentUser = ref(null)
+    const showMap = ref(false)
 
     const handleLoginSuccess = (user) => {
       currentUser.value = user
@@ -47,9 +52,21 @@ export default {
     const logout = () => {
       currentUser.value = null
       currentPage.value = 'login'
+      showMap.value = false
     }
 
-    return { currentPage, currentUser, handleLoginSuccess, logout }
+    const toggleMap = () => {
+      showMap.value = !showMap.value
+    }
+
+    return {
+      currentPage,
+      currentUser,
+      showMap,
+      handleLoginSuccess,
+      logout,
+      toggleMap,
+    }
   },
 }
 </script>

@@ -1,32 +1,39 @@
 <template>
   <div class="dashboard-page">
     <div class="container p-4">
-      <h2>Welcome, {{ currentUser.username }}!</h2>
-      <p>
-        Your role is: <strong>{{ currentUser.role }}</strong>
-      </p>
+      <div class="welcome-section">
+        <h2>Welcome, {{ currentUser.email }}!</h2>
+        <p>Your role is: <strong>User</strong></p>
+      </div>
 
-      <button class="btn btn-primary mt-3 mb-3" @click="showTables = !showTables">
-        {{ showTables ? 'Hide' : 'Show' }} Interactive Tables
-      </button>
+      <div class="button-group">
+        <button class="btn btn-primary" @click="showTables = !showTables">
+          {{ showTables ? 'Hide' : 'Show' }} Interactive Tables
+        </button>
+        <button class="btn btn-secondary" @click="$emit('toggle-map')">
+          {{ showMap ? 'Hide' : 'Show' }} Map
+        </button>
+        <button class="btn btn-logout" @click="$emit('logout')">Logout</button>
+      </div>
 
       <InteractiveTables v-if="showTables" />
-
-      <button class="btn btn-logout mt-4" @click="$emit('logout')">Logout</button>
+      <MapView v-if="showMap" />
     </div>
   </div>
 </template>
 
 <script>
 import InteractiveTables from './InteractiveTables.vue'
+import MapView from './MapView.vue'
 
 export default {
-  props: { currentUser: { type: Object, required: true } },
-  components: { InteractiveTables },
+  props: {
+    currentUser: { type: Object, required: true },
+    showMap: { type: Boolean, required: true },
+  },
+  components: { InteractiveTables, MapView },
   data() {
-    return {
-      showTables: false,
-    }
+    return { showTables: false }
   },
 }
 </script>
@@ -37,34 +44,67 @@ export default {
   background: linear-gradient(135deg, #fff6f6, #fffaf0);
   padding-top: 40px;
 }
+
 .container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
   background: white;
-  border-radius: 12px;
-  padding: 24px;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
-.btn-logout {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background: #ff6f61;
-  color: white;
+
+.welcome-section h2 {
+  font-size: 28px;
+  color: #ff6f61;
+  margin-bottom: 6px;
+}
+
+.welcome-section p {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.btn {
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
+  padding: 10px 20px;
   cursor: pointer;
+  font-size: 16px;
 }
-.btn-logout:hover {
-  background: #ff8a75;
-}
+
 .btn-primary {
-  background: #007bff;
+  background-color: #007bff;
   color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
 }
+
 .btn-primary:hover {
-  background: #0056b3;
+  background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #1e7e34;
+}
+
+.btn-logout {
+  background-color: #ff6f61;
+  color: white;
+}
+
+.btn-logout:hover {
+  background-color: #ff8a75;
 }
 </style>

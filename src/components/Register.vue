@@ -89,18 +89,15 @@ export default {
       }
 
       try {
-        // 创建 Firebase 用户
         const userCredential = await createUserWithEmailAndPassword(auth, this.email, this.password)
         const user = userCredential.user
 
-        // 更新 displayName
         await updateProfile(user, { displayName: this.username })
         localStorage.setItem('userRole', this.role)
 
-        // --- 调用 EmailJS 发送注册欢迎邮件 ---
         const templateParams = {
-          email: this.email, // 收件人邮箱
-          from_name: "Women's Health", // 发件人名称
+          email: this.email,
+          from_name: "Women's Health",
           message: `Hi ${this.username}, welcome to Women's Health! Your role: ${this.role}`,
         }
 
@@ -113,7 +110,6 @@ export default {
 
         alert(`User ${this.username} registered successfully as ${this.role}! Welcome email sent.`)
 
-        // 重置表单
         this.username = ''
         this.email = ''
         this.password = ''
