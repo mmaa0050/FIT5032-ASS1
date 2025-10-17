@@ -70,6 +70,7 @@
 <script>
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import { auth } from '@/firebaseConfig'
+import emailjs from '@emailjs/browser'
 
 export default {
   data() {
@@ -88,20 +89,31 @@ export default {
       }
 
       try {
-        // Create user with Firebase
+        // 创建 Firebase 用户
         const userCredential = await createUserWithEmailAndPassword(auth, this.email, this.password)
         const user = userCredential.user
 
-        // Update display name
+        // 更新 displayName
         await updateProfile(user, { displayName: this.username })
-
-        // Store user role locally (Firebase doesn't store role by default)
         localStorage.setItem('userRole', this.role)
 
-        // Alert with correct template string
-        alert(`User ${this.username} registered successfully as ${this.role}!`)
+        // --- 调用 EmailJS 发送注册欢迎邮件 ---
+        const templateParams = {
+          email: this.email, // 收件人邮箱
+          from_name: "Women's Health", // 发件人名称
+          message: `Hi ${this.username}, welcome to Women's Health! Your role: ${this.role}`,
+        }
 
-        // Reset form
+        await emailjs.send(
+          'service_ajg5x9c', // Service ID
+          'template_6f4w7r9', // Template ID
+          templateParams,
+          'vUUGPr0zPRJiPJEWQ', // Public Key
+        )
+
+        alert(`User ${this.username} registered successfully as ${this.role}! Welcome email sent.`)
+
+        // 重置表单
         this.username = ''
         this.email = ''
         this.password = ''
@@ -110,6 +122,7 @@ export default {
         this.$emit('go-login')
       } catch (error) {
         alert(error.message)
+        console.error(error)
       }
     },
   },
