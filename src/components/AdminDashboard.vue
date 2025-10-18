@@ -1,25 +1,37 @@
 <template>
-  <div class="dashboard-page">
+  <main class="dashboard-page">
     <div class="container p-4">
-      <div class="welcome-section">
+      <section class="welcome-section" aria-label="Welcome section">
         <h2>Welcome Admin, {{ currentUser.email }}!</h2>
         <p>Your role is: <strong>Admin</strong></p>
-      </div>
+      </section>
 
-      <div class="button-group">
-        <button class="btn btn-primary" @click="showTables = !showTables">
+      <div class="button-group" role="group" aria-label="Dashboard controls">
+        <button
+          class="btn btn-primary"
+          @click="showTables = !showTables"
+          :aria-pressed="showTables.toString()"
+          aria-label="Toggle interactive tables"
+        >
           {{ showTables ? 'Hide' : 'Show' }} Interactive Tables
         </button>
-        <button class="btn btn-secondary" @click="$emit('toggle-map')">
+
+        <button
+          class="btn btn-secondary"
+          @click="$emit('toggle-map')"
+          :aria-pressed="showMap.toString()"
+          aria-label="Toggle map view"
+        >
           {{ showMap ? 'Hide' : 'Show' }} Map
         </button>
-        <button class="btn btn-logout" @click="$emit('logout')">Logout</button>
+
+        <button class="btn btn-logout" @click="$emit('logout')" aria-label="Logout">Logout</button>
       </div>
 
       <InteractiveTables v-if="showTables" />
       <MapView v-if="showMap" />
     </div>
-  </div>
+  </main>
 </template>
 
 <script>
@@ -79,6 +91,12 @@ export default {
   padding: 10px 20px;
   cursor: pointer;
   font-size: 16px;
+  outline: none;
+}
+
+.btn:focus {
+  outline: 3px solid #ffa500; /* 高对比焦点提示 */
+  outline-offset: 2px;
 }
 
 .btn-primary {

@@ -39,5 +39,18 @@
     "prettier": "3.6.2",
     "vite": "^7.0.6",
     "vite-plugin-vue-devtools": "^8.0.0"
-  }
+  },
+  "description": "This template should help get you started developing with Vue 3 in Vite.",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mmaa0050/FIT5032-ASS1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mmaa0050/FIT5032-ASS1/issues"
+  },
+  "homepage": "https://github.com/mmaa0050/FIT5032-ASS1#readme"
 }

@@ -3,14 +3,24 @@
     <div class="container p-4">
       <div class="welcome-section">
         <h2>Welcome, {{ currentUser.email }}!</h2>
-        <p>Your role is: <strong>User</strong></p>
+        <p>
+          Your role is: <strong>{{ currentUser.role }}</strong>
+        </p>
       </div>
 
       <div class="button-group">
-        <button class="btn btn-primary" @click="showTables = !showTables">
+        <button
+          class="btn btn-primary"
+          @click="showTables = !showTables"
+          :aria-pressed="showTables.toString()"
+        >
           {{ showTables ? 'Hide' : 'Show' }} Interactive Tables
         </button>
-        <button class="btn btn-secondary" @click="$emit('toggle-map')">
+        <button
+          class="btn btn-secondary"
+          @click="$emit('toggle-map')"
+          :aria-pressed="showMap.toString()"
+        >
           {{ showMap ? 'Hide' : 'Show' }} Map
         </button>
         <button class="btn btn-logout" @click="$emit('logout')">Logout</button>
@@ -28,7 +38,7 @@ import MapView from './MapView.vue'
 
 export default {
   props: {
-    currentUser: { type: Object, required: true },
+    currentUser: { type: Object, required: true }, // 需要包含 role 字段
     showMap: { type: Boolean, required: true },
   },
   components: { InteractiveTables, MapView },

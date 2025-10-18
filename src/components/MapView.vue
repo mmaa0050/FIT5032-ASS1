@@ -1,12 +1,38 @@
 <template>
   <div class="map-container">
+    <!-- Search Box -->
     <div class="search-box">
-      <input type="text" v-model="startQuery" placeholder="Start place" />
-      <input type="text" v-model="endQuery" placeholder="End place" />
-      <button @click="searchPlace">Search Place</button>
-      <button @click="showRoute">Show Route</button>
+      <label for="start-place" class="visually-hidden">Start Place</label>
+      <input
+        id="start-place"
+        type="text"
+        v-model="startQuery"
+        placeholder="Start place"
+        aria-required="true"
+        @keyup.enter="searchPlace"
+      />
+
+      <label for="end-place" class="visually-hidden">End Place</label>
+      <input
+        id="end-place"
+        type="text"
+        v-model="endQuery"
+        placeholder="End place"
+        aria-required="true"
+        @keyup.enter="showRoute"
+      />
+
+      <button @click="searchPlace" aria-label="Search start place">Search Place</button>
+      <button @click="showRoute" aria-label="Show route from start to end">Show Route</button>
+
+      <!-- Route Info for screen readers -->
+      <div v-if="routeInfo" role="status" aria-live="polite" class="sr-only">
+        {{ routeInfo }}
+      </div>
     </div>
-    <div id="map"></div>
+
+    <!-- Map Container -->
+    <div id="map" role="application" aria-label="Map showing start and end locations"></div>
   </div>
 </template>
 
@@ -23,6 +49,7 @@ export default {
       endQuery: '',
       startCoords: null,
       endCoords: null,
+      routeInfo: '',
     }
   },
   mounted() {
@@ -54,22 +81,31 @@ export default {
     },
 
     async searchPlace() {
-      if (!this.startQuery) return
+      if (!this.startQuery) {
+        this.routeInfo = 'Start place is empty.'
+        return
+      }
       const coords = await this.geocodePlace(this.startQuery)
       if (!coords) {
-        alert('Location not found!')
+        this.routeInfo = 'Location not found.'
         return
       }
       this.map.flyTo({ center: coords, zoom: 14 })
       new mapboxgl.Marker({ color: 'blue' }).setLngLat(coords).addTo(this.map)
+      this.routeInfo = `Searched location: ${this.startQuery}`
     },
 
     async showRoute() {
+      if (!this.startQuery || !this.endQuery) {
+        this.routeInfo = 'Start or end place is empty.'
+        return
+      }
+
       this.startCoords = await this.geocodePlace(this.startQuery)
       this.endCoords = await this.geocodePlace(this.endQuery)
 
       if (!this.startCoords || !this.endCoords) {
-        alert('Could not find one or both locations.')
+        this.routeInfo = 'Could not find one or both locations.'
         return
       }
 
@@ -81,7 +117,10 @@ export default {
       const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${this.startCoords[0]},${this.startCoords[1]};${this.endCoords[0]},${this.endCoords[1]}?geometries=geojson&access_token=${mapboxgl.accessToken}`
       const res = await fetch(url)
       const data = await res.json()
-      if (!data.routes || data.routes.length === 0) return
+      if (!data.routes || data.routes.length === 0) {
+        this.routeInfo = 'No route found.'
+        return
+      }
 
       const route = data.routes[0].geometry
 
@@ -103,6 +142,8 @@ export default {
           paint: { 'line-color': '#ff6f91', 'line-width': 5 },
         })
       }
+
+      this.routeInfo = `Route generated from ${this.startQuery} to ${this.endQuery}`
     },
   },
 }
@@ -127,24 +168,48 @@ export default {
   transform: translateX(-50%);
   display: flex;
   z-index: 1;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 .search-box input {
   padding: 6px 12px;
   font-size: 16px;
-  border: 1px solid #ccc;
+  border: 2px solid #333;
   outline: none;
-  margin-right: 4px;
+  border-radius: 6px;
 }
 .search-box button {
   padding: 6px 12px;
   font-size: 16px;
-  border: 1px solid #ccc;
+  border: none;
   background-color: #ff6f91;
   color: #fff;
   cursor: pointer;
-  margin-left: 2px;
+  border-radius: 6px;
 }
 .search-box button:hover {
   opacity: 0.9;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 </style>

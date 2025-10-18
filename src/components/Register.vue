@@ -5,49 +5,63 @@
       <form @submit.prevent="register">
         <!-- Username -->
         <div class="mb-3">
-          <label class="form-label fw-bold">Username</label>
+          <label for="username" class="form-label fw-bold">Username</label>
           <input
+            id="username"
             type="text"
             v-model="username"
             class="form-control form-control-lg"
             placeholder="Enter your username"
+            aria-required="true"
             required
+            @keyup.enter="register"
           />
         </div>
 
         <!-- Email -->
         <div class="mb-3">
-          <label class="form-label fw-bold">Email</label>
+          <label for="email" class="form-label fw-bold">Email</label>
           <input
+            id="email"
             type="email"
             v-model="email"
             class="form-control form-control-lg"
             placeholder="Enter your email"
+            aria-required="true"
             required
+            @keyup.enter="register"
           />
         </div>
 
         <!-- Password -->
         <div class="mb-3">
-          <label class="form-label fw-bold">Password</label>
+          <label for="password" class="form-label fw-bold">Password</label>
           <input
+            id="password"
             type="password"
             v-model="password"
             class="form-control form-control-lg"
             placeholder="Enter your password (min 6 chars)"
+            aria-required="true"
             required
             minlength="6"
+            @keyup.enter="register"
           />
           <small class="form-text text-muted">
-            It is recommended to include uppercase letters, numbers, or special characters to
-            enhance password strength.
+            Include uppercase letters, numbers, or special characters to enhance password strength.
           </small>
         </div>
 
         <!-- Role -->
         <div class="mb-3">
-          <label class="form-label fw-bold">Role</label>
-          <select v-model="role" class="form-control form-control-lg" required>
+          <label for="role" class="form-label fw-bold">Role</label>
+          <select
+            id="role"
+            v-model="role"
+            class="form-control form-control-lg"
+            aria-required="true"
+            required
+          >
             <option disabled value="">Select role</option>
             <option value="User">User</option>
             <option value="Admin">Admin</option>
@@ -55,8 +69,15 @@
         </div>
 
         <!-- Register Button -->
-        <button type="submit" class="btn btn-login w-100 mt-3">Register</button>
+        <button type="submit" class="btn btn-login w-100 mt-3" aria-label="Register account">
+          Register
+        </button>
       </form>
+
+      <!-- Screen reader live region for alerts -->
+      <div v-if="statusMessage" role="alert" aria-live="assertive" class="sr-only">
+        {{ statusMessage }}
+      </div>
 
       <!-- Link to Login -->
       <p class="text-center mt-3">
@@ -79,12 +100,14 @@ export default {
       email: '',
       password: '',
       role: '',
+      statusMessage: '', // 用于屏幕阅读器提示
     }
   },
   methods: {
     async register() {
+      this.statusMessage = '' // 清空提示
       if (!this.username || !this.email || !this.password || !this.role) {
-        alert('Please fill in all fields.')
+        this.statusMessage = 'Please fill in all fields.'
         return
       }
 
@@ -98,26 +121,28 @@ export default {
         const templateParams = {
           email: this.email,
           from_name: "Women's Health",
-          message: `Hi ${this.username}, welcome to Women's Health! Your role: ${this.role}`,
+          message: `Hi ${this.username}, welcome! Your role: ${this.role}`,
         }
 
         await emailjs.send(
-          'service_ajg5x9c', // Service ID
-          'template_6f4w7r9', // Template ID
+          'service_ajg5x9c',
+          'template_6f4w7r9',
           templateParams,
-          'vUUGPr0zPRJiPJEWQ', // Public Key
+          'vUUGPr0zPRJiPJEWQ',
         )
 
-        alert(`User ${this.username} registered successfully as ${this.role}! Welcome email sent.`)
+        this.statusMessage = `User ${this.username} registered successfully as ${this.role}! Welcome email sent.`
 
+        // Reset form
         this.username = ''
         this.email = ''
         this.password = ''
         this.role = ''
 
+        // 自动跳转到登录
         this.$emit('go-login')
       } catch (error) {
-        alert(error.message)
+        this.statusMessage = error.message
         console.error(error)
       }
     },
@@ -161,5 +186,16 @@ export default {
 }
 .register-link:hover {
   text-decoration: underline;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 </style>

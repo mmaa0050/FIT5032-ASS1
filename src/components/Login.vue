@@ -2,36 +2,53 @@
   <div class="d-flex justify-content-center align-items-center vh-100 login-bg">
     <div class="card shadow-lg p-4 text-dark login-card">
       <h2 class="text-center mb-4 text-gradient">Women's Health</h2>
-      <form @submit.prevent="login">
+
+      <!-- Error Message -->
+      <div v-if="errorMsg" role="alert" class="alert alert-danger">
+        {{ errorMsg }}
+      </div>
+
+      <form @submit.prevent="login" aria-label="Login form">
         <!-- Email -->
         <div class="mb-3">
-          <label class="form-label fw-bold">Email</label>
+          <label for="login-email" class="form-label fw-bold">Email</label>
           <input
+            id="login-email"
             type="email"
             v-model="email"
             class="form-control form-control-lg"
             placeholder="Enter your email"
             required
+            aria-required="true"
           />
         </div>
 
         <!-- Password -->
         <div class="mb-3">
-          <label class="form-label fw-bold">Password</label>
+          <label for="login-password" class="form-label fw-bold">Password</label>
           <input
+            id="login-password"
             type="password"
             v-model="password"
             class="form-control form-control-lg"
             placeholder="Enter your password"
             required
             minlength="6"
+            aria-required="true"
           />
         </div>
 
         <!-- Role -->
         <div class="mb-3">
-          <label class="form-label fw-bold">Role</label>
-          <select v-model="role" class="form-control form-control-lg" required>
+          <label for="login-role" class="form-label fw-bold">Role</label>
+          <select
+            id="login-role"
+            v-model="role"
+            class="form-control form-control-lg"
+            required
+            aria-required="true"
+            aria-label="Select role"
+          >
             <option disabled value="">Select role</option>
             <option value="User">User</option>
             <option value="Admin">Admin</option>
@@ -39,13 +56,20 @@
         </div>
 
         <!-- Login Button -->
-        <button type="submit" class="btn btn-login w-100 mt-3">Login</button>
+        <button type="submit" class="btn btn-login w-100 mt-3" aria-label="Login">Login</button>
       </form>
 
       <!-- Link to Register -->
       <p class="text-center mt-3">
         Don’t have an account?
-        <a href="#" class="register-link" @click.prevent="$emit('go-register')">Sign Up</a>
+        <a
+          href="#"
+          class="register-link"
+          @click.prevent="$emit('go-register')"
+          aria-label="Go to register page"
+        >
+          Sign Up
+        </a>
       </p>
     </div>
   </div>
@@ -61,12 +85,14 @@ export default {
       email: '',
       password: '',
       role: '',
+      errorMsg: '',
     }
   },
   methods: {
     async login() {
+      this.errorMsg = ''
       if (!this.email || !this.password || !this.role) {
-        alert('Please fill in all fields.')
+        this.errorMsg = 'Please fill in all fields.'
         return
       }
 
@@ -76,12 +102,11 @@ export default {
 
         // Check stored role
         const savedRole = localStorage.getItem('userRole')
-        if (savedRole !== this.role) {
-          alert('Incorrect role selection. Please select the correct role.')
+        if (savedRole && savedRole !== this.role) {
+          this.errorMsg = 'Incorrect role selection. Please select the correct role.'
           return
         }
 
-        // Correct template string
         alert(`Welcome back, ${user.displayName || 'User'}! You are logged in as ${this.role}.`)
 
         // Reset form
@@ -91,7 +116,7 @@ export default {
 
         this.$emit('login-success', { email: user.email, role: this.role })
       } catch (error) {
-        alert('Invalid email or password: ' + error.message)
+        this.errorMsg = 'Invalid email or password: ' + error.message
       }
     },
   },
@@ -114,6 +139,9 @@ export default {
   -webkit-text-fill-color: transparent;
   font-weight: 700;
 }
+.form-control {
+  border: 2px solid #333; /* 高对比边框 */
+}
 .btn-login {
   background: linear-gradient(45deg, #ff6f91, #ff9671, #ffc75f);
   border: none;
@@ -134,5 +162,12 @@ export default {
 }
 .register-link:hover {
   text-decoration: underline;
+}
+.alert {
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  background-color: #f8d7da;
+  color: #842029;
 }
 </style>
