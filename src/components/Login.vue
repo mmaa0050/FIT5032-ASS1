@@ -140,7 +140,7 @@ export default {
   font-weight: 700;
 }
 .form-control {
-  border: 2px solid #333; /* 高对比边框 */
+  border: 2px solid #333;
 }
 .btn-login {
   background: linear-gradient(45deg, #ff6f91, #ff9671, #ffc75f);

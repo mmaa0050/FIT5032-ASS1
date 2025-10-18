@@ -100,12 +100,12 @@ export default {
       email: '',
       password: '',
       role: '',
-      statusMessage: '', // 用于屏幕阅读器提示
+      statusMessage: '',
     }
   },
   methods: {
     async register() {
-      this.statusMessage = '' // 清空提示
+      this.statusMessage = ''
       if (!this.username || !this.email || !this.password || !this.role) {
         this.statusMessage = 'Please fill in all fields.'
         return
@@ -139,7 +139,6 @@ export default {
         this.password = ''
         this.role = ''
 
-        // 自动跳转到登录
         this.$emit('go-login')
       } catch (error) {
         this.statusMessage = error.message

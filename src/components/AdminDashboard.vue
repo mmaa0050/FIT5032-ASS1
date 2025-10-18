@@ -95,7 +95,7 @@ export default {
 }
 
 .btn:focus {
-  outline: 3px solid #ffa500; /* 高对比焦点提示 */
+  outline: 3px solid #ffa500;
   outline-offset: 2px;
 }
 

@@ -2,10 +2,8 @@
   <div class="dashboard-page">
     <div class="container p-4">
       <div class="welcome-section">
-        <h2>Welcome, {{ currentUser.email }}!</h2>
-        <p>
-          Your role is: <strong>{{ currentUser.role }}</strong>
-        </p>
+        <h2>Welcome Admin, {{ currentUser.email }}!</h2>
+        <p>Your role is: <strong>Admin</strong></p>
       </div>
 
       <div class="button-group">
@@ -38,12 +36,14 @@ import MapView from './MapView.vue'
 
 export default {
   props: {
-    currentUser: { type: Object, required: true }, // 需要包含 role 字段
+    currentUser: { type: Object, required: true },
     showMap: { type: Boolean, required: true },
   },
   components: { InteractiveTables, MapView },
   data() {
-    return { showTables: false }
+    return {
+      showTables: false,
+    }
   },
 }
 </script>

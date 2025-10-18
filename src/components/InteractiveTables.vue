@@ -2,6 +2,10 @@
   <div class="container mt-5">
     <!-- Users Table -->
     <h2>Users Table</h2>
+    <div class="d-flex justify-content-end mb-2">
+      <button class="btn btn-sm btn-success me-2" @click="exportUsersCSV">Export Users CSV</button>
+      <button class="btn btn-sm btn-success" @click="exportUsersPDF">Export Users PDF</button>
+    </div>
     <table class="table table-striped table-bordered" aria-label="Users table">
       <caption>
         List of users with ID, username, email, and role
@@ -109,6 +113,12 @@
 
     <!-- Emails Table -->
     <h2 class="mt-5">Emails Table</h2>
+    <div class="d-flex justify-content-end mb-2">
+      <button class="btn btn-sm btn-success me-2" @click="exportEmailsCSV">
+        Export Emails CSV
+      </button>
+      <button class="btn btn-sm btn-success" @click="exportEmailsPDF">Export Emails PDF</button>
+    </div>
     <table class="table table-striped table-bordered" aria-label="Emails table">
       <caption>
         List of sent emails with ID, recipient, subject, and date
@@ -218,6 +228,8 @@
 
 <script>
 import { ref, computed, onMounted } from 'vue'
+import jsPDF from 'jspdf'
+import 'jspdf-autotable'
 
 export default {
   setup() {
@@ -231,7 +243,7 @@ export default {
     const userFilters = ref({ id: '', username: '', email: '', role: '' })
     const emailFilters = ref({ id: '', to: '', subject: '', date: '' })
 
-    const userSort = ref({ key: '', order: '' }) // 'asc' / 'desc'
+    const userSort = ref({ key: '', order: '' })
     const emailSort = ref({ key: '', order: '' })
 
     const generateMockData = () => {
@@ -305,7 +317,6 @@ export default {
         userSort.value.order = 'asc'
       }
     }
-
     const getUserSort = (key) => {
       if (userSort.value.key !== key) return 'none'
       return userSort.value.order === 'asc' ? 'ascending' : 'descending'
@@ -319,28 +330,69 @@ export default {
         emailSort.value.order = 'asc'
       }
     }
-
     const getEmailSort = (key) => {
       if (emailSort.value.key !== key) return 'none'
       return emailSort.value.order === 'asc' ? 'ascending' : 'descending'
     }
 
+    // CSV Export
+    const exportUsersCSV = () => {
+      const rows = filteredUsers.value.map((u) => [u.id, u.username, u.email, u.role])
+      let csvContent = 'data:text/csv;charset=utf-8,ID,Username,Email,Role\n'
+      rows.forEach((r) => (csvContent += r.join(',') + '\n'))
+      const encodedUri = encodeURI(csvContent)
+      const link = document.createElement('a')
+      link.setAttribute('href', encodedUri)
+      link.setAttribute('download', 'users_table.csv')
+      link.click()
+    }
+
+    const exportEmailsCSV = () => {
+      const rows = filteredEmails.value.map((e) => [e.id, e.to, e.subject, e.date])
+      let csvContent = 'data:text/csv;charset=utf-8,ID,Recipient,Subject,Date\n'
+      rows.forEach((r) => (csvContent += r.join(',') + '\n'))
+      const link = document.createElement('a')
+      link.setAttribute('href', encodeURI(csvContent))
+      link.setAttribute('download', 'emails_table.csv')
+      link.click()
+    }
+
+    // PDF Export
+    const exportUsersPDF = () => {
+      const doc = new jsPDF()
+      doc.text('Users Table', 14, 16)
+      const columns = ['ID', 'Username', 'Email', 'Role']
+      const rows = filteredUsers.value.map((u) => [u.id, u.username, u.email, u.role])
+      doc.autoTable({ startY: 20, head: [columns], body: rows, styles: { fontSize: 10 } })
+      doc.save('users_table.pdf')
+    }
+
+    const exportEmailsPDF = () => {
+      const doc = new jsPDF()
+      doc.text('Emails Table', 14, 16)
+      const columns = ['ID', 'Recipient', 'Subject', 'Date Sent']
+      const rows = filteredEmails.value.map((e) => [e.id, e.to, e.subject, e.date])
+      doc.autoTable({ startY: 20, head: [columns], body: rows, styles: { fontSize: 10 } })
+      doc.save('emails_table.pdf')
+    }
+
     return {
-      users,
-      emails,
       userPage,
       emailPage,
-      pageSize,
+      totalUserPages,
+      totalEmailPages,
       userFilters,
       emailFilters,
       paginatedUsers,
       paginatedEmails,
-      totalUserPages,
-      totalEmailPages,
       sortUsers,
       sortEmails,
       getUserSort,
       getEmailSort,
+      exportUsersCSV,
+      exportEmailsCSV,
+      exportUsersPDF,
+      exportEmailsPDF,
     }
   },
 }
