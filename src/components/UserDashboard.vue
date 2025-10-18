@@ -2,8 +2,8 @@
   <div class="dashboard-page">
     <div class="container p-4">
       <div class="welcome-section">
-        <h2>Welcome Admin, {{ currentUser.email }}!</h2>
-        <p>Your role is: <strong>Admin</strong></p>
+        <h2>Welcome User, {{ currentUser.email }}!</h2>
+        <p>Your role is: <strong>User</strong></p>
       </div>
 
       <div class="button-group">
